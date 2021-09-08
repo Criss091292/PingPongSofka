@@ -7,11 +7,13 @@
         this.game_over=false;
         this.bars =[];
         this.ball=null;
+        this.playing=false; 
     }
 
     self.Board.prototype ={
         get elements(){
-            var elements  = this.bars;
+            //se crea copia para que el recolector de basura pueda eliminarla y no estalle la memoria
+            var elements  = this.bars.map(function(bar){return  bar;});
             elements.push(this.ball);
             return elements;
         }
@@ -22,11 +24,20 @@
         this.x=x;
         this.y=y;
         this.radius=radius;
-        this.speed_x=0;
-        this.speed_y=3;
+        this.speed_y=0;
+        this.speed_x=3;
         this.board=board;
+        this.direction=1;
         board.ball=this;
         this.kind="circle";
+
+        
+    }
+    self.Ball.prototype={
+        move: function(){
+            this.x += (this.speed_x * this.direction);
+            this.y += (this.speed_y);
+        }
     }
 })();
 
@@ -75,8 +86,12 @@
             };
         },
         play: function(){
-            this.clean();
-            this.draw();
+            if(this.board.playing){
+                this.clean();
+                this.draw();
+                this.board.ball.move();
+            }
+            
         }
     }
     function draw(ctx,element){
@@ -108,25 +123,37 @@ var ball = new Ball(350,100,10,board)
 
 document.addEventListener("keydown",function(ev){
     //evita el movimiento de las barras de desplazamiento en la ventana
-    ev.preventDefault;
-    //tecla == flecha arrib
+        //tecla == flecha arrib
     if(ev.keyCode == 38){   
+        ev.preventDefault();
         bar.up();
     }
     //tecla == flecha abajo
     else if(ev.keyCode  ==40){
+        ev.preventDefault();
         bar.down();
     }
     //tecla == w
     else if(ev.keyCode  ==87){
+        ev.preventDefault();
         bar_2.up();
     }
     //tecla == s
     else if(ev.keyCode  ==83){
+        ev.preventDefault();
         bar_2.down();
     }
+    //barra espaciadora
+    else if(ev.keyCode  ==32){
+        ev.preventDefault();
+        board.playing = !board.playing;;
+    }
 });
+board_view.draw();
 window.requestAnimationFrame(controller);
+setTimeout(function(){
+    ball.direction = ball.direction*-1;
+},2500);
 //window.addEventListener("load",main);
 
 //funcion que hace de controller
