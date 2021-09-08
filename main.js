@@ -17,6 +17,18 @@
         }
     }
 })();
+(function (){
+    self.Ball = function(x,y,radius,board){
+        this.x=x;
+        this.y=y;
+        this.radius=radius;
+        this.speed_x=0;
+        this.speed_y=3;
+        this.board=board;
+        board.ball=this;
+        this.kind="circle";
+    }
+})();
 
 (function(){
     self.Bar = function(x,y,width,height,board){
@@ -27,7 +39,7 @@
         this.board=board;
         this.board.bars.push(this);
         this.kind= "rectangle";
-        this.speed= 10;
+        this.speed= 20;
     }
 
     self.Bar.prototype = {
@@ -53,21 +65,34 @@
     }
     //se crea funcion draw  que dibuja elementos en la vista
     self.BoardView.prototype = {        
+        clean: function(){
+            this.ctx.clearRect(0,0,this.board.width,this.board.height);
+        },
         draw: function(){
             for (var i = this.board.elements.length-1;i>=0;i--){
                 var el = this.board.elements[i];
                 draw(this.ctx, el);
             };
+        },
+        play: function(){
+            this.clean();
+            this.draw();
         }
     }
     function draw(ctx,element){
-        if(element !== null && element.hasOwnProperty("kind")){
+        //if(element !== null && element.hasOwnProperty("kind")){
             switch(element.kind){
                 case "rectangle":
                     ctx.fillRect(element.x,element.y,element.width,element.height);
                     break;
+                    case "circle":
+                        ctx.beginPath();
+                        ctx.arc(element.x,element.y,element.radius,0,7);
+                        ctx.fill();
+                        ctx.closePath();
+                        break;
             }
-        }
+        //}
         
     }
 })();
@@ -75,23 +100,37 @@
 //ejecuta el metodo main tan pronto cargue la ventana
 var board = new Board(800,400);
 var bar = new Bar(20,100,40,100,board);
-var bar = new Bar(700,100,40,100,board);
+var bar_2 = new Bar(700,100,40,100,board);
 var canvas = document.getElementById('canvas');
 var board_view = new BoardView(canvas,board );
+var ball = new Ball(350,100,10,board)
+//setInterval(main,100);
 
 document.addEventListener("keydown",function(ev){
-    console.log(ev.keyCode);
-    if(ev.keyCode == 38){
+    //evita el movimiento de las barras de desplazamiento en la ventana
+    ev.preventDefault;
+    //tecla == flecha arrib
+    if(ev.keyCode == 38){   
         bar.up();
-    }else if(ev.keyCode  ==40){
+    }
+    //tecla == flecha abajo
+    else if(ev.keyCode  ==40){
         bar.down();
     }
-    console.log(""+bar);
+    //tecla == w
+    else if(ev.keyCode  ==87){
+        bar_2.up();
+    }
+    //tecla == s
+    else if(ev.keyCode  ==83){
+        bar_2.down();
+    }
 });
-window.addEventListener("load",main);
+window.requestAnimationFrame(controller);
+//window.addEventListener("load",main);
 
 //funcion que hace de controller
-function main(){
-    console.log("hola mundo");
-    board_view.draw();
+function controller(){
+    board_view.play();
+    window.requestAnimationFrame(controller);
 }
