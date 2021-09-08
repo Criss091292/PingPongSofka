@@ -25,18 +25,20 @@
         this.width=width;
         this.height=height;
         this.board=board;
-
         this.board.bars.push(this);
-
         this.kind= "rectangle";
+        this.speed= 10;
     }
 
     self.Bar.prototype = {
         down: function(){
-
+            this.y += this.speed;
         },
         up: function(){
-
+            this.y -= this.speed;
+        },
+        toString: function(){
+            return "x: " + this.x + " y: " + this.y;
         }
     }
 })();
@@ -49,7 +51,7 @@
         this.board = board;
         this.ctx = canvas.getContext("2d");
     }
-
+    //se crea funcion draw  que dibuja elementos en la vista
     self.BoardView.prototype = {        
         draw: function(){
             for (var i = this.board.elements.length-1;i>=0;i--){
@@ -71,14 +73,25 @@
 })();
 
 //ejecuta el metodo main tan pronto cargue la ventana
+var board = new Board(800,400);
+var bar = new Bar(20,100,40,100,board);
+var bar = new Bar(700,100,40,100,board);
+var canvas = document.getElementById('canvas');
+var board_view = new BoardView(canvas,board );
+
+document.addEventListener("keydown",function(ev){
+    console.log(ev.keyCode);
+    if(ev.keyCode == 38){
+        bar.up();
+    }else if(ev.keyCode  ==40){
+        bar.down();
+    }
+    console.log(""+bar);
+});
 window.addEventListener("load",main);
 
 //funcion que hace de controller
 function main(){
-    var board = new Board(800,400);
-    var bar = new Bar(20,100,40,100,board);
-    var bar = new Bar(700,100,40,100,board);
-    var canvas = document.getElementById('canvas');
-    var board_view = new BoardView(canvas,board );
+    console.log("hola mundo");
     board_view.draw();
 }
